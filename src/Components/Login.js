@@ -24,7 +24,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("http://62.72.30.43/api/login", {
+      .post("https://api.foody.gomaplus.tech/api/login", {
         email: values.email,
         password: values.pass,
       })

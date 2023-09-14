@@ -4,7 +4,7 @@ function Order({ order, onOkClick }) {
   const handleChangeStatus = () => {
     onOkClick();
   };
-
+  console.log(order.products);
   const handlePrint = () => {
     const printWindow = window.open("", "", "width=600,height=600");
 
@@ -57,25 +57,26 @@ th {
     <th>المبلغ المستحق</th>  
   </tr>
 </table>
-          </div>
-          <div>
+    </div>
+   <div>
 <table>
   <tr>
   <th>السعر</th>
    <th style="width:20%">الكمية</th>
-     <th style="width:20%">سعر الوحدة</th>  
+   <th style="width:20%">سعر الوحدة</th>  
   <th >الصنف</th>
   </tr>
-  <td valign="top">Lois</td>
-  <td valign="top">Griffin</td>
+  <td valign="top">600$</td>
+  <td valign="top">4</td>
   <td valign="top">$150</td>
-   <td valign="top">Griffin</td>
+  
+   <td valign="top">Burger</td>
   </tr>
  
 </table>
           </div>
-                  <div class="top_table">
-          <table style="width:50%">
+   <div class="top_table">
+ <table style="width:50%">
   <tr>
   <td>Jill</td>
     <th>المجموع الجزئي</th>
@@ -99,54 +100,70 @@ th {
   };
   return (
     <div className="flex flex-col ">
-      <div className="overflow-x-auto w-4/6 mx-auto">
+      <div
+        className={`${
+          order.isNew ? " border-2 border-green-500" : ""
+        } overflow-x-auto max-w-5xl  mx-auto bg-white rounded-lg shadow-lg  `}
+      >
         <div className="inline-block min-w-full py-6 sm:px-6 lg:px-8">
           <div className="overflow-hidden">
             {order.table_num === 1101 ? (
               <div className="bg-green-600  w-32 text-white rounded-sm  py-2 px-1">
-                {" "}
                 Take Away
               </div>
             ) : null}
             <table className="min-w-full text-left text-base   ">
-              <thead className="border-b border-neutral-700 font-bold py-10   ">
+              <thead className="border-b border-neutral-200 font-bold py-10 text-zinc-600  ">
                 <tr>
-                  <th scope="col" className="px-4 py-6">
+                  <th scope="col" className="px-6 py-6">
                     Table Number
                   </th>
-                  <th scope="col" className="px-4 py-6">
+                  <th scope="col" className="px-6 py-6">
                     ID
                   </th>
-                  <th scope="col" className="px-4 py-6">
-                    Time
-                  </th>
-                  <th scope="col" className="px-4 py-6">
+
+                  <th scope="col" className="px-6 py-6 ">
                     Order
                   </th>
-                  <th scope="col" className="px-4 py-4">
+                  <th scope="col" className="px-6 py-4">
                     Price
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="font-medium text-zinc-600 ">
-                  <td valign="top" className=" px-4 py-4 v ">
-                    {order.table_num}
+                  <td valign="top" className=" px-6 py-4 ">
+                    {order.table.table_num}
                   </td>
-                  <td valign="top" className=" whitespace-nowrap px-4 py-4">
-                    #{order.id}
+                  <td valign="top" className=" px-6 py-4 ">
+                    {order.id}
                   </td>
-                  <td valign="top" className="whitespace-nowrap px-4 py-4 ">
-                    {order.time}
+                  <td valign="top" className="whitespace-nowrap  px-6 py-4 ">
+                    <div class="max-h-32 overflow-y-auto overflow-x-hidden">
+                      {order.products.map((product) => (
+                        <>
+                          <p
+                            key={product.id}
+                            className="pb-4 gap-4 flex items-start justify-start  max-w-lg capitalize font-bold "
+                          >
+                            <span className=" w-1/2 me-4 ">{product.name}</span>
+                            quantity:
+                            <span className="me-2 font-bold">
+                              {product.qty}
+                            </span>
+                            subtotal:
+                            <span className=" font-bold text-red-600">
+                              {product.subTotal}
+                            </span>
+                          </p>
+                        </>
+                      ))}
+                    </div>
                   </td>
-                  <td valign="top" className="whitespace-nowrap px-4 py-4">
-                    {order.products.map((product) => (
-                      <p key={product.id} className="pb-2 text-slate-500">
-                        {product.name}
-                      </p>
-                    ))}
-                  </td>
-                  <td valign="top" className="whitespace-nowrap px-4 py-4">
+                  <td
+                    valign="top"
+                    className="whitespace-nowrap px-6 py-4 text-red-600 font-bold"
+                  >
                     {order.total_price}
                   </td>
                 </tr>
@@ -158,7 +175,7 @@ th {
       <div className="py-10 space-x-2">
         <button
           onClick={handleChangeStatus}
-          className="py-3 px-4 w-2/4 bg-[#DC0D28] rounded-md shadow-md shadow-zinc-600 font-medium  text-white"
+          className="py-3 px-4 w-1/4 bg-grad bg-[#DC0D28] hover:bg-[#c8001b] duration-200 rounded-md shadow-md shadow-zinc-600 font-medium  text-white"
         >
           OK
         </button>

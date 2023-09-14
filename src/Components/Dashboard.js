@@ -3,10 +3,13 @@ import axios from "axios";
 import Order from "./Order";
 import SkeletonLoading from "./SkeletonLoading";
 import { useNavigate } from "react-router-dom";
+import Pusher from "pusher-js";
+import Notification from "./Notification";
 
 const Dashboard = () => {
   const [checks, setChecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [notification, setNotification] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const logOut = () => {
@@ -16,12 +19,15 @@ const Dashboard = () => {
   console.log(checks);
   const fetchAllChecks = async () => {
     try {
-      const response = await axios.get("http://62.72.30.43/api/all_checks", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setChecks(response.data.data);
+      const response = await axios.get(
+        "https://api.foody.gomaplus.tech/api/orders/Casher",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setChecks(response.data?.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -33,19 +39,18 @@ const Dashboard = () => {
     setIsLoading(true);
     try {
       await axios.post(
-        "http://62.72.30.43/api/Change_check",
-        { check_id: checkId },
+        `https://api.foody.gomaplus.tech/api/order/ChangeToPaid/${checkId}`,
+        {},
+
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       fetchAllChecks();
     } catch (error) {
       console.error("Error changing check status:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -53,12 +58,37 @@ const Dashboard = () => {
     fetchAllChecks();
   }, []);
 
+  useEffect(() => {
+    const pusher = new Pusher("897190819c4cec71fdc0", {
+      cluster: "mt1",
+    });
+
+    const channel = pusher.subscribe("Casher");
+
+    channel.bind("ToCasher", (data) => {
+      console.log(data.Casher, "from real timeeee");
+      let order = data.Casher;
+      order.isNew = true;
+      order.table = { table_num: order.table_id };
+      console.log(data);
+      setNotification("New check added!");
+      setChecks((prev) => {
+        return [order, ...prev];
+      });
+    });
+
+    return () => {
+      channel.unbind();
+      pusher.disconnect();
+    };
+  }, []);
+
   return (
-    <>
-      <div className="flex items-center justify-center ">
+    <div className="bg-gray-100">
+      <div className="flex items-center justify-center  ">
         <button
           onClick={logOut}
-          className="border p-3 mx-8 rounded-lg shadow-lg"
+          className="border bg-white p-3 mx-8 rounded-lg shadow-lg"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -97,7 +127,13 @@ const Dashboard = () => {
           ))
         )}
       </div>
-    </>
+      {notification && (
+        <Notification
+          message={notification}
+          onClose={() => setNotification("")}
+        />
+      )}
+    </div>
   );
 };
 
